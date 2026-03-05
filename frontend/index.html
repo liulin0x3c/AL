@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>知识库 GPT 聊天 Demo</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   </head>
   <body>
     <div class="app">
@@ -13,6 +14,11 @@
       </header>
 
       <main class="main">
+        <div id="node-pipeline" class="node-pipeline"></div>
+        <details class="llm-panel" open>
+          <summary>DeepSeek 实时输出</summary>
+          <div id="llm-stream" class="llm-stream"></div>
+        </details>
         <div id="chat-window" class="chat-window"></div>
         <form id="chat-form" class="chat-form">
           <textarea

@@ -17,6 +17,12 @@ class GraphState(TypedDict):
     search_results: List[str]
     # routing decision made by the router node
     route: Optional[str]
+    # name of the node that was most recently executed
+    current_node: Optional[str]
+    # how many times reflect has triggered a re-retrieval loop
+    reflect_count: int
+    # analyzed search query (filled by analyze_query node before retrieve/web_search)
+    search_query: Optional[str]
 
 
 State = GraphState

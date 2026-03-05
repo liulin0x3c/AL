@@ -2,6 +2,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import END, START, StateGraph
 
 from app.graph.nodes import (
+    analyze_query_node,
     generate_node,
     grade_node,
     reflect_node,
@@ -19,6 +20,7 @@ def build_graph() -> StateGraph:
 
     # Core nodes
     workflow.add_node("router", router_node)
+    workflow.add_node("analyze_query", analyze_query_node)
     workflow.add_node("retrieve", retrieve_node)
     workflow.add_node("web_search", web_search_node)
     workflow.add_node("grade", grade_node)
@@ -28,12 +30,22 @@ def build_graph() -> StateGraph:
     # Entry: route the request
     workflow.add_edge(START, "router")
 
-    # Router branching
+    # Router: direct -> generate; retrieve/web_search -> analyze_query first
     workflow.add_conditional_edges(
         "router",
         lambda state: state.get("route"),
         {
             "direct_generate": "generate",
+            "retrieve": "analyze_query",
+            "web_search": "analyze_query",
+        },
+    )
+
+    # After analyze_query, go to retrieve or web_search by route
+    workflow.add_conditional_edges(
+        "analyze_query",
+        lambda state: state.get("route"),
+        {
             "retrieve": "retrieve",
             "web_search": "web_search",
         },
@@ -43,26 +55,26 @@ def build_graph() -> StateGraph:
     workflow.add_edge("retrieve", "grade")
     workflow.add_edge("web_search", "grade")
 
-    # Grade branching: either generate or try web_search as fallback
+    # Grade branching: either generate or try web_search as fallback (via analyze_query)
     workflow.add_conditional_edges(
         "grade",
         lambda state: state.get("route"),
         {
             "generate": "generate",
-            "web_search": "web_search",
+            "web_search": "analyze_query",
         },
     )
 
     # After generation, go to reflection
     workflow.add_edge("generate", "reflect")
 
-    # Reflection branching: either end or re-retrieve
+    # Reflection: end or re-retrieve (via analyze_query to re-analyze search intent)
     workflow.add_conditional_edges(
         "reflect",
         lambda state: state.get("route"),
         {
             "end": END,
-            "retrieve": "retrieve",
+            "retrieve": "analyze_query",
         },
     )
 
@@ -94,6 +106,9 @@ def run_graph(message: str, history: list[dict] | None = None) -> list[dict]:
             "retrieved_docs": [],
             "search_results": [],
             "route": None,
+            "current_node": None,
+            "reflect_count": 0,
+            "search_query": None,
         }
     )
 
