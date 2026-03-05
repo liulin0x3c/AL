@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>知识库 GPT 聊天 Demo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1>知识库 GPT 聊天 Demo</h1>
+        <p>结合 DeepSeek + 知识库 RAG + 智谱 Web Search</p>
+      </header>
+
+      <main class="main">
+        <div id="chat-window" class="chat-window"></div>
+        <form id="chat-form" class="chat-form">
+          <textarea
+            id="input"
+            class="chat-input"
+            rows="2"
+            placeholder="输入你的问题，例如：帮我总结知识库里的文档；或者：最近 AI 有哪些新闻？"
+          ></textarea>
+          <button type="submit" class="send-btn">发送</button>
+        </form>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
+

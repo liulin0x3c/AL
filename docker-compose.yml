@@ -1,0 +1,14 @@
+services:
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: al-chroma
+    ports:
+      - "8001:8000"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+    volumes:
+      - chroma_data:/chroma/chroma
+
+volumes:
+  chroma_data:

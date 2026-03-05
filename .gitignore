@@ -1,0 +1,71 @@
+############################
+# 通用
+############################
+.DS_Store
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.orig
+*.rej
+
+############################
+# Python / 后端 (backend)
+############################
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# Python 构建产物
+build/
+dist/
+*.egg-info/
+
+# 本地环境配置
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+############################
+# FastAPI / Uvicorn / 运行时
+############################
+uvicorn*.log
+
+############################
+# 前端 (frontend)
+############################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# 前端构建产物（如后续加入构建工具）
+frontend/dist/
+frontend/build/
+
+############################
+# 编辑器 / IDE
+############################
+.vscode/
+.idea/
+*.iml
+
+############################
+# Docker / 容器相关
+############################
+*.pid
+
+############################
+# 其他
+############################
+/scripts/__pycache__/
+backend/scripts/__pycache__/
