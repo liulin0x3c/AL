@@ -1,4 +1,5 @@
 from typing import List
+import logging
 
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_deepseek import ChatDeepSeek
@@ -8,6 +9,8 @@ from app.graph.state import State
 from app.graph.tools import zhipu_web_search
 from app.rag.vectorstore import get_vectorstore
 
+
+logger = logging.getLogger("chat_flow")
 
 llm = ChatDeepSeek(
     model=settings.deepseek_model,
@@ -33,6 +36,8 @@ def router_node(state: State) -> State:
     elif any(k in content for k in ["文档", "知识库", "资料", "说明"]):
         route = "retrieve"
 
+    logger.info("router_node: route=%s, query=%s", route, content[:200])
+
     return {
         **state,
         "route": route,
@@ -46,9 +51,13 @@ def retrieve_node(state: State) -> State:
     last = messages[-1] if messages else None
     query = (last.content if isinstance(last, HumanMessage) else "") if last else ""
 
+    logger.info("retrieve_node: query=%s", query[:200])
+
     vs = get_vectorstore()
     docs = vs.similarity_search(query, k=5)
     retrieved = [d.page_content for d in docs]
+
+    logger.info("retrieve_node: retrieved=%d docs", len(retrieved))
 
     return {
         **state,
@@ -63,7 +72,10 @@ def web_search_node(state: State) -> State:
     last = messages[-1] if messages else None
     query = (last.content if isinstance(last, HumanMessage) else "") if last else ""
 
+    logger.info("web_search_node: query=%s", query[:200])
+
     results = zhipu_web_search(query, max_results=5)
+    logger.info("web_search_node: results=%d", len(results))
     return {
         **state,
         "search_results": results,
@@ -83,6 +95,13 @@ def grade_node(state: State) -> State:
         route = "generate"
     else:
         route = "web_search"
+
+    logger.info(
+        "grade_node: retrieved=%d, search_results=%d, route=%s",
+        len(retrieved),
+        len(search_results),
+        route,
+    )
 
     return {
         **state,
@@ -125,7 +144,15 @@ def generate_node(state: State) -> State:
         elif isinstance(m, AIMessage):
             full_messages.append(("ai", m.content))
 
+    logger.info(
+        "generate_node: calling DeepSeek, context_from_kb=%d, context_from_web=%d",
+        len(retrieved),
+        len(search_results),
+    )
+
     ai_msg = llm.invoke(full_messages)
+
+    logger.info("generate_node: answer_length=%d", len(ai_msg.content or ""))
 
     new_messages = messages + [AIMessage(content=ai_msg.content)]
 
@@ -146,6 +173,7 @@ def reflect_node(state: State) -> State:
     last_ai = messages[-1] if messages and isinstance(messages[-1], AIMessage) else None
 
     if not last_ai:
+        logger.info("reflect_node: no last_ai, end")
         return {**state, "route": "end"}
 
     question = (
@@ -155,12 +183,15 @@ def reflect_node(state: State) -> State:
         f"上一个回答内容如下：\n{last_ai.content}"
     )
 
+    logger.info("reflect_node: asking judgement from DeepSeek")
     judgement = llm.invoke([("human", question)]).content.strip().upper()
 
     if "NEED_MORE_INFO" in judgement:
         route = "retrieve"
     else:
         route = "end"
+
+    logger.info("reflect_node: judgement=%s, route=%s", judgement, route)
 
     return {
         **state,

@@ -1,10 +1,21 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.chat import router as chat_router
 
 
+def configure_logging() -> None:
+    """Configure root logger for simple console output."""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    )
+
+
 def create_app() -> FastAPI:
+    configure_logging()
     app = FastAPI(title="Knowledge Base GPT Chat Demo")
 
     # Allow local frontends (e.g., http://localhost:5173 or file://) to call the API

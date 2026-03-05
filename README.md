@@ -22,9 +22,20 @@ frontend/
 
 ## 环境准备
 
+### 环境变量模板 `backend/.env.example`
+
+仓库中已包含 `backend/.env.example`，用于作为环境变量的示例模板文件，你可以在其中看到所有需要配置的关键变量，例如：
+
+- `DEEPSEEK_API_KEY`：DeepSeek 大模型的 API Key  
+- `ZHIPUAI_API_KEY`：智谱 AI 的 API Key  
+- `CHROMA_HOST` / `CHROMA_PORT`：向量数据库 Chroma 的地址与端口  
+- `CHROMA_PERSIST_DIR`：本地嵌入式 Chroma 存储目录
+
+使用方式如下：
+
 ```bash
 cd backend
-cp .env.example .env  # 填写 DEEPSEEK_API_KEY / ZHIPUAI_API_KEY
+cp .env.example .env  # 复制模板，并在 .env 中填写实际值
 pip install -r requirements.txt
 ```
 
