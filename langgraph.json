@@ -1,0 +1,20 @@
+{
+  "graphs": {
+    "chat": "backend.app.graph.graph:graph"
+  },
+  "env": "backend/.env",
+  "dependencies": [
+    "backend",
+    "langgraph",
+    "langchain",
+    "langchain-core",
+    "langchain-community",
+    "langchain-deepseek",
+    "langchain-chroma",
+    "chromadb",
+    "sentence-transformers",
+    "zhipuai",
+    "fastapi"
+  ]
+}
+

@@ -69,3 +69,4 @@ frontend/build/
 ############################
 /scripts/__pycache__/
 backend/scripts/__pycache__/
+.langgraph_api/
